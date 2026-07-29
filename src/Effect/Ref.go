@@ -10,20 +10,21 @@ func NewWithSelf(f func(interface{}) interface{}) func() interface{} {
 		return ref
 	}
 }
-func Read(ref map[string]interface{}) func() interface{} {
+func Read(ref interface{}) func() interface{} {
 	return func() interface{} {
-		return ref["value"]
+		return ref.(map[string]interface{})["value"]
 	}
 }
-func ModifyImpl(f func(interface{}) map[string]interface{}, ref map[string]interface{}) func() interface{} {
+func ModifyImpl(f func(interface{}) interface{}, ref interface{}) func() interface{} {
 	return func() interface{} {
-		t := f(ref["value"])
-		ref["value"] = t["state"]
+		t := f(ref.(map[string]interface{})["value"]).(map[string]interface{})
+		ref.(map[string]interface{})["value"] = t["state"]
 		return t["value"]
 	}
 }
-func Write(val interface{}, ref map[string]interface{}) func() {
-	return func() {
-		ref["value"] = val
+func Write(val interface{}, ref interface{}) func() interface{} {
+	return func() interface{} {
+		ref.(map[string]interface{})["value"] = val
+		return nil
 	}
 }
