@@ -35,3 +35,4 @@ export const write = function (val) {
     };
   };
 };
+export const modify_ = function (f) { return function (ref) { return function () { ref.value = f(ref.value); }; }; };

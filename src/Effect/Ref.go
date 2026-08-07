@@ -47,6 +47,17 @@ func ModifyImpl(f gopurs_runtime.Value, ref gopurs_runtime.Value) gopurs_runtime
 	})
 }
 
+func Modify_(f gopurs_runtime.Value, ref gopurs_runtime.Value) gopurs_runtime.Value {
+	return gopurs_runtime.Func(func(_ gopurs_runtime.Value) gopurs_runtime.Value {
+		state := ref.AnyVal().(*RefState)
+		state.mu.Lock()
+		defer state.mu.Unlock()
+		
+		state.val = gopurs_runtime.Apply(f, state.val)
+		return gopurs_runtime.Any(nil)
+	})
+}
+
 func Write(val gopurs_runtime.Value, ref gopurs_runtime.Value) gopurs_runtime.Value {
 	return gopurs_runtime.Func(func(_ gopurs_runtime.Value) gopurs_runtime.Value {
 		state := ref.AnyVal().(*RefState)
