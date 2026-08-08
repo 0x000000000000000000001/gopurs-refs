@@ -3,6 +3,7 @@ module Test.Main where
 import Prelude
 
 import Effect (Effect)
+import Effect.Console as Effect.Console
 import Effect.Ref as Ref
 import Test.Assert (assertEqual)
 
@@ -52,3 +53,5 @@ selfRef = do
   assertEqual
     <<< { expected: 2, actual: _ }
     =<< (Ref.read ref <#> \(RefBox { value }) -> value)
+
+  Effect.Console.log "All tests passed!"
