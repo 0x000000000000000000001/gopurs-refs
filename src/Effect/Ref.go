@@ -28,8 +28,9 @@ func Read(ref gopurs_runtime.Value) gopurs_runtime.Value {
 	return gopurs_runtime.Func(func(_ gopurs_runtime.Value) gopurs_runtime.Value {
 		state := ref.AnyVal().(*RefState)
 		state.mu.Lock()
-		defer state.mu.Unlock()
-		return state.val
+		val := state.val
+		state.mu.Unlock()
+		return val
 	})
 }
 
@@ -37,13 +38,11 @@ func ModifyImpl(f gopurs_runtime.Value, ref gopurs_runtime.Value) gopurs_runtime
 	return gopurs_runtime.Func(func(_ gopurs_runtime.Value) gopurs_runtime.Value {
 		state := ref.AnyVal().(*RefState)
 		state.mu.Lock()
-		defer state.mu.Unlock()
-		
 		res := gopurs_runtime.Apply(f, state.val)
-		record := gopurs_runtime.UnboxObject(res)
-		
-		state.val = record["state"].(gopurs_runtime.Value)
-		return record["value"].(gopurs_runtime.Value)
+		state.val = gopurs_runtime.RecordGet(res, "state")
+		value := gopurs_runtime.RecordGet(res, "value")
+		state.mu.Unlock()
+		return value
 	})
 }
 
@@ -51,9 +50,8 @@ func Modify_(f gopurs_runtime.Value, ref gopurs_runtime.Value) gopurs_runtime.Va
 	return gopurs_runtime.Func(func(_ gopurs_runtime.Value) gopurs_runtime.Value {
 		state := ref.AnyVal().(*RefState)
 		state.mu.Lock()
-		defer state.mu.Unlock()
-		
 		state.val = gopurs_runtime.Apply(f, state.val)
+		state.mu.Unlock()
 		return gopurs_runtime.Any(nil)
 	})
 }
